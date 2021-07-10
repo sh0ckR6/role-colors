@@ -1,5 +1,7 @@
 package com.github.sh0ckr6
 
+import com.github.sh0ckr6.commands.ColorCommand
+import com.github.sh0ckr6.managers.SlashCommandManager
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import javax.security.auth.login.LoginException
@@ -14,7 +16,7 @@ object RoleColors {
     /**
      * The [JDA] representing the bot
      */
-    private lateinit var bot: JDA
+    lateinit var bot: JDA
 
     /**
      * Main entry point for the program
@@ -32,5 +34,16 @@ object RoleColors {
         val builder = JDABuilder.createDefault(System.getenv("ROLECOLORSKEY"))
         bot = builder.build()
         bot.awaitReady()
+        registerCommands()
+        SlashCommandManager.getAllCommands().forEach {
+            bot.addEventListener(it)
+        }
+        bot.guildCache.getElementById(697124957834051585)!!.updateCommands().addCommands(SlashCommandManager.getAllCommandData()).queue()
+    }
+
+    private fun registerCommands() {
+        SlashCommandManager.registerCommands(
+            ColorCommand(bot)
+        )
     }
 }

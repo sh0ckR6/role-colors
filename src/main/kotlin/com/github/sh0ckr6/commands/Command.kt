@@ -1,8 +1,13 @@
 package com.github.sh0ckr6.commands
 
-import com.github.sh0ckr6.Settings
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.OptionMapping
+import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 
 /**
  * Base class for all Commands
@@ -21,50 +26,59 @@ abstract class Command(
      */
     val description: String,
     /**
-     * The usage of the command
+     * The [JDA] client
+     *
      * @since 1.0
      */
-    val usage: String,
-    /**
-     * The command's aliases
-     * @since 1.0
-     */
-    val aliases: List<String>
+    val bot: JDA
 ) : ListenerAdapter() {
+    abstract val commandData: CommandData
 
     /**
-     * Override the [net.dv8tion.jda.api.hooks.ListenerAdapter#onGuildMessageReceived]
+     * Override the [net.dv8tion.jda.api.hooks.ListenerAdapter#onSlashCommand]
      *
      * @param[event] The event passed to the function
      * @since 1.0
      * @author sh0ckR6
      */
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        // Store message object in variable
-        val message = event.message
+    override fun onSlashCommand(event: SlashCommandEvent) {
+        if (event.name != this.name) return
 
-        // Ensure command was not called by a bot
-        if (event.author.isBot) return
+        run(event.options, event)
+    }
 
-        // Ensure command was actually called and not just a random message
-        if (!message.contentStripped.startsWith(Settings.prefix + name)) return
-
-        // Parse arguments
-        val argsRaw: List<String> = message.contentStripped.split(" ")
-        val args: List<String> = if (argsRaw.size == 1) emptyList() else argsRaw.subList(1, argsRaw.size - 1)
-
-        // Run the command
-        run(args, event);
+    /**
+     * Infix function to add options to [CommandData] objects
+     *
+     * @param[data] The [OptionData] to add to the [CommandData]
+     * @return Returns the updated [CommandData]
+     * @author sh0ckR6
+     * @since 1.0
+     */
+    private infix fun CommandData.withOption(data: OptionData): CommandData {
+        return this.addOptions(data)
     }
 
     /**
      * Runs the command being called
      *
      * @param[args] The arguments provided to the command
-     * @param[event] The GuildMessageEvent that called the command
+     * @param[event] The [SlashCommandEvent] that called the command
      *
      * @author sh0ckR6
      * @since 1.0
      */
-    abstract fun run(args: List<String>, event: GuildMessageReceivedEvent)
+    abstract fun run(args: List<OptionMapping>, event: SlashCommandEvent)
+
+    override fun onSelectionMenu(event: SelectionMenuEvent) {
+        when (this) {
+            is IHasSelectMenu -> onSelectMenuInteract(event)
+        }
+    }
+
+    override fun onButtonClick(event: ButtonClickEvent) {
+        when (this) {
+            is IHasButton -> onButtonInteract(event)
+        }
+    }
 }
