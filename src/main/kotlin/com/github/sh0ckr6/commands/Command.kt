@@ -1,41 +1,106 @@
 package com.github.sh0ckr6.commands
 
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.InteractionHook
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.requests.RestAction
 
 /**
  * Base class for all Commands
+ *
+ * @property [name] The name of the command
+ * @property [description] The description of the command
+ * @property [bot] The [JDA] client
+ *
  * @author sh0ckR6
  * @since 1.0
  */
-abstract class Command(
-    /**
-     * The name of the command
-     * @since 1.0
-     */
-    val name: String,
-    /**
-     * The description of the command
-     * @since 1.0
-     */
-    val description: String,
-    /**
-     * The [JDA] client
-     *
-     * @since 1.0
-     */
-    val bot: JDA
-) : ListenerAdapter() {
+abstract class Command(val name: String, val description: String, val bot: JDA) : ListenerAdapter() {
+
     abstract val commandData: CommandData
 
     /**
-     * Override the [net.dv8tion.jda.api.hooks.ListenerAdapter#onSlashCommand]
+     * Extension method for [RestAction] to automatically set [replyMessage] after queueing an interaction reply
+     *
+     * @author sh0ckR6
+     * @since 1.0
+     * @see replyMessage
+     */
+    fun RestAction<InteractionHook>.queueAndSetMessage(command: Command) {
+        this.queueAndSetMessage(command, null, null)
+    }
+
+    /**
+     * Extension method for [RestAction] to automatically set [replyMessage] after queueing an interaction reply
+     * that allows for custom success handling
+     *
+     * @author sh0ckR6
+     * @since 1.0
+     * @see replyMessage
+     */
+    fun RestAction<InteractionHook>.queueAndSetMessage(command: Command, success: (InteractionHook) -> Unit) {
+        this.queueAndSetMessage(command, success, null)
+    }
+
+    /**
+     * Extension method for [RestAction] to automatically set [replyMessage] after queueing an interaction reply
+     * that allows for custom success and error handling
+     *
+     * @author sh0ckR6
+     * @since 1.0
+     * @see replyMessage
+     */
+    fun RestAction<InteractionHook>.queueAndSetMessage(command: Command, success: ((InteractionHook) -> Unit)?, failure: ((Throwable) -> Unit)?) {
+        this.queue({
+            it.retrieveOriginal().queue { message ->
+                command.replyMessage = message
+                success?.invoke(it)
+            }
+        }, failure)
+    }
+
+    /**
+     * The [Message] this command set in response to the execution of the command
+     *
+     * **IMPORTANT**: This value **must** be set after sending a reply for component interactions to work properly
+     * if you are not queueing with the extension method [queueAndSetMessage]
+     *
+     * Example (using [queue][RestAction.queue]):
+     * ```kotlin
+     * override fun run(args: List<OptionMapping>, event: SlashCommandEvent) {
+     *      event.reply("Hello, World!").queue() {
+     *           it.retrieveOriginal().queue() { message ->
+     *               replyMessage = message
+     *           }
+     *           // Other reply handling code...
+     *      }
+     * }
+     * ```
+     *
+     * Example (using [queueAndSetMessage][queueAndSetMessage]):
+     * ```kotlin
+     * override fun run(args: List<OptionMapping>, event: SlashCommandEvent {
+     *      event.reply("Hello, World!").queueAndSetMessage() {
+     *           // Reply handling code
+     *      }
+     * }
+     * ```
+     *
+     * @since 1.0
+     * @see queueAndSetMessage
+     */
+    var replyMessage: Message? = null
+
+    /**
+     * Override the [onSlashCommand][net.dv8tion.jda.api.hooks.ListenerAdapter#onSlashCommand]
+     * callback provided by [ListenerAdapter]
      *
      * @param[event] The event passed to the function
      * @since 1.0
@@ -70,15 +135,45 @@ abstract class Command(
      */
     abstract fun run(args: List<OptionMapping>, event: SlashCommandEvent)
 
+    /**
+     * Function to be run when a select menu attached
+     * to this command is interacted with
+     *
+     * @param [event] The [SelectionMenuEvent] that raised this callback
+     *
+     * @author sh0ckR6
+     * @since 1.0
+     */
+    @Throws(MissingInteractionMessageException::class)
     override fun onSelectionMenu(event: SelectionMenuEvent) {
         when (this) {
-            is IHasSelectMenu -> onSelectMenuInteract(event)
+            is IHasSelectMenu -> {
+                if (replyMessage == null) throw MissingInteractionMessageException()
+                if (event.interaction.message!!.id == replyMessage!!.id) {
+                    onSelectMenuInteract(event)
+                }
+            }
         }
     }
 
+    /**
+     * Function to be run when a button attached
+     * to this command is interacted with
+     *
+     * @param [event] The [ButtonClickEvent] that raised this callback
+     *
+     * @author sh0ckR6
+     * @since 1.0
+     */
+    @Throws(MissingInteractionMessageException::class)
     override fun onButtonClick(event: ButtonClickEvent) {
         when (this) {
-            is IHasButton -> onButtonInteract(event)
+            is IHasButton -> {
+                if (replyMessage == null) throw MissingInteractionMessageException()
+                if (event.interaction.message!!.id == replyMessage!!.id) {
+                    onButtonInteract(event)
+                }
+            }
         }
     }
 }
