@@ -15,6 +15,9 @@ import javax.security.auth.login.LoginException
 object RoleColors {
     /**
      * The [JDA] representing the bot
+     *
+     * @author sh0ckR6
+     * @since 1.0
      */
     lateinit var bot: JDA
 
@@ -41,6 +44,12 @@ object RoleColors {
         bot.guildCache.getElementById(697124957834051585)!!.updateCommands().addCommands(SlashCommandManager.getAllCommandData()).queue()
     }
 
+    /**
+     * Registers slash commands to be added to the bot
+     *
+     * @author sh0ckR6
+     * @since 1.0
+     */
     private fun registerCommands() {
         SlashCommandManager.registerCommands(
             ColorCommand(bot)
