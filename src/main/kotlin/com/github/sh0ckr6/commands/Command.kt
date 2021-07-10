@@ -1,7 +1,6 @@
 package com.github.sh0ckr6.commands
 
 import com.github.sh0ckr6.Settings
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 

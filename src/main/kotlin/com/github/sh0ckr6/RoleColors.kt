@@ -1,11 +1,8 @@
 package com.github.sh0ckr6
 
 import net.dv8tion.jda.api.JDA
-import javax.security.auth.login.LoginException
-import java.lang.InterruptedException
-import kotlin.jvm.JvmStatic
 import net.dv8tion.jda.api.JDABuilder
-import com.github.sh0ckr6.RoleColors
+import javax.security.auth.login.LoginException
 
 /**
  * Main class for the program
