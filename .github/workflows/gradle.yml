@@ -8,12 +8,12 @@ on:
     branches:
       - "**"
     paths:
-      - "**.java"
+      - "**.kt"
   pull_request:
     branches:
       - "**"
     paths:
-      - "**.java"
+      - "**.kt"
 
 jobs:
   build:
