@@ -40,7 +40,11 @@ object RoleColors {
         SlashCommandManager.getAllCommands().forEach {
             bot.addEventListener(it)
         }
-        bot.guildCache.getElementById(697124957834051585)!!.updateCommands().addCommands(SlashCommandManager.getAllCommandData()).queue()
+        bot.updateCommands().addCommands(SlashCommandManager.getAllGlobalCommandData()).queue()
+        val commandGuildIds = SlashCommandManager.getAllCommandGuildIds()
+        for (guildId in commandGuildIds) {
+            bot.guildCache.getElementById(guildId)?.updateCommands()?.addCommands(SlashCommandManager.getAllCommandDataFromGuild(guildId))?.queue()
+        }
     }
 
     /**
