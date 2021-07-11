@@ -22,12 +22,24 @@ assignees: sh0ckR6
 <!--- Replace the below with your arguments formatted like the below --->
 <!--- Delete the below if your command does not have any arguments --->
 - Argument name
+  - Argument type (role, channel, text, etc.)
   - Argument description
 
 
 ---
+### Does your command have any subcommands?
+##### Subcommands are commands that branch off of your main command<br>Example: `/users kick`
+- [ ] Subcommand name
+  - Subcommand description
+
+---
 ### What does your command do?
-##### A clear and concise description of what your command will do
+##### A clear and concise description of what your command will do<br>Ignore if your command **has** subcommands
+
+---
+### What does each subcommand do?
+##### A clear and concise description of what each subcommand will do<br>Ignore if your command **does not** have subcommands
+
 
 ---
 ### Who can run your command?
