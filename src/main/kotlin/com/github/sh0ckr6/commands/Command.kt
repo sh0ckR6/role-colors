@@ -122,7 +122,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      * @author sh0ckR6
      * @since 1.0
      */
-    private infix fun CommandData.withOption(data: OptionData): CommandData {
+    protected infix fun CommandData.withOption(data: OptionData): CommandData {
         return this.addOptions(data)
     }
 
