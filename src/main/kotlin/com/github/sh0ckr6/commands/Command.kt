@@ -1,5 +1,6 @@
 package com.github.sh0ckr6.commands
 
+import com.github.sh0ckr6.managers.ErrorManager.logToDiscord
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
@@ -143,12 +144,18 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      *
      * @author sh0ckR6
      * @since 1.0
+     * @throws MissingInteractionMessageException If [replyMessage] is not set (see [queueAndSetMessage])
      */
     @Throws(MissingInteractionMessageException::class)
     override fun onSelectionMenu(event: SelectionMenuEvent) {
         when (this) {
             is IHasSelectMenu -> {
-                if (replyMessage == null) throw MissingInteractionMessageException()
+                try {
+                    if (replyMessage == null) throw MissingInteractionMessageException()
+                } catch (e: Exception) {
+                    e.logToDiscord(event.channel)
+                    return
+                }
                 if (event.interaction.message!!.id == replyMessage!!.id) {
                     onSelectMenuInteract(event)
                 }
@@ -164,12 +171,18 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      *
      * @author sh0ckR6
      * @since 1.0
+     * @throws MissingInteractionMessageException If [replyMessage] is not set (see [queueAndSetMessage])
      */
     @Throws(MissingInteractionMessageException::class)
     override fun onButtonClick(event: ButtonClickEvent) {
         when (this) {
             is IHasButton -> {
-                if (replyMessage == null) throw MissingInteractionMessageException()
+                try {
+                    if (replyMessage == null) throw MissingInteractionMessageException()
+                } catch (e: Exception) {
+                    e.logToDiscord(event.channel)
+                    return
+                }
                 if (event.interaction.message!!.id == replyMessage!!.id) {
                     onButtonInteract(event)
                 }
