@@ -1,6 +1,5 @@
 package com.github.sh0ckr6
 
-import com.github.sh0ckr6.commands.ColorCommand
 import com.github.sh0ckr6.managers.SlashCommandManager
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -52,7 +51,6 @@ object RoleColors {
      */
     private fun registerCommands() {
         SlashCommandManager.registerCommands(
-            ColorCommand(bot)
         )
     }
 }
