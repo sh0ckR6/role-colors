@@ -29,7 +29,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
     abstract val commandData: CommandData
 
     /**
-     * Extension method for [RestAction] to automatically set [replyMessage] after queueing an interaction reply
+     * Extension method for [RestAction] to automatically add to [replyMessages] after queueing an interaction reply
      *
      * @author sh0ckR6
      * @since 1.0
@@ -40,7 +40,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
     }
 
     /**
-     * Extension method for [RestAction] to automatically set [replyMessage] after queueing an interaction reply
+     * Extension method for [RestAction] to automatically add to [replyMessages] after queueing an interaction reply
      * that allows for custom success handling
      *
      * @author sh0ckR6
@@ -52,7 +52,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
     }
 
     /**
-     * Extension method for [RestAction] to automatically set [replyMessage] after queueing an interaction reply
+     * Extension method for [RestAction] to automatically add to [replyMessages] after queueing an interaction reply
      * that allows for custom success and error handling
      *
      * @author sh0ckR6
@@ -62,7 +62,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
     fun RestAction<InteractionHook>.queueAndSetMessage(command: Command, success: ((InteractionHook) -> Unit)?, failure: ((Throwable) -> Unit)?) {
         this.queue({
             it.retrieveOriginal().queue { message ->
-                command.replyMessage = message
+                command.replyMessages.add(message)
                 success?.invoke(it)
             }
         }, failure)
@@ -79,7 +79,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      * override fun run(args: List<OptionMapping>, event: SlashCommandEvent) {
      *      event.reply("Hello, World!").queue {
      *           it.retrieveOriginal().queue { message ->
-     *               replyMessage = message
+     *               replyMessages.add(message)
      *           }
      *           // Other reply handling code...
      *      }
@@ -98,7 +98,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      * @since 1.0
      * @see queueAndSetMessage
      */
-    var replyMessage: Message? = null
+    var replyMessages: MutableList<Message> = mutableListOf()
 
     /**
      * Override the [onSlashCommand][net.dv8tion.jda.api.hooks.ListenerAdapter#onSlashCommand]
@@ -158,19 +158,19 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      *
      * @author sh0ckR6
      * @since 1.0
-     * @throws MissingInteractionMessageException If [replyMessage] is not set (see [queueAndSetMessage])
+     * @throws MissingInteractionMessageException If [replyMessages] is empty (see [queueAndSetMessage])
      */
     @Throws(MissingInteractionMessageException::class)
     override fun onSelectionMenu(event: SelectionMenuEvent) {
         when (this) {
             is IHasSelectMenu -> {
                 try {
-                    if (replyMessage == null) throw MissingInteractionMessageException()
+                    if (replyMessages.isEmpty()) throw MissingInteractionMessageException()
                 } catch (e: Exception) {
                     e.logToDiscord(event.channel)
                     return
                 }
-                if (event.interaction.message!!.id == replyMessage!!.id) {
+                if (replyMessages.any { event.interaction.message!!.id == it.id }) {
                     onSelectMenuInteract(event)
                 }
             }
@@ -185,19 +185,19 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      *
      * @author sh0ckR6
      * @since 1.0
-     * @throws MissingInteractionMessageException If [replyMessage] is not set (see [queueAndSetMessage])
+     * @throws MissingInteractionMessageException If [replyMessages] is empty (see [queueAndSetMessage])
      */
     @Throws(MissingInteractionMessageException::class)
     override fun onButtonClick(event: ButtonClickEvent) {
         when (this) {
             is IHasButton -> {
                 try {
-                    if (replyMessage == null) throw MissingInteractionMessageException()
+                    if (replyMessages.isEmpty()) throw MissingInteractionMessageException()
                 } catch (e: Exception) {
                     e.logToDiscord(event.channel)
                     return
                 }
-                if (event.interaction.message!!.id == replyMessage!!.id) {
+                if (replyMessages.any { event.interaction.message!!.id == it.id }) {
                     onButtonInteract(event)
                 }
             }
