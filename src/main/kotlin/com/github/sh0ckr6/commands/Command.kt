@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu
 import net.dv8tion.jda.api.requests.RestAction
 
 /**
@@ -123,6 +124,19 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      */
     private infix fun CommandData.withOption(data: OptionData): CommandData {
         return this.addOptions(data)
+    }
+
+    /**
+     * Infix function to add options to [SelectionMenu.Builder] objects
+     *
+     * @param data The label and value of the option to add
+     *
+     * Example: `selectionMenu withOption Pair("label", "value")`
+     * @author sh0ckR6
+     * @since 1.0
+     */
+    protected infix fun SelectionMenu.Builder.withOption(data: Pair<String, String>): SelectionMenu.Builder {
+        return this.addOption(data.first, data.second)
     }
 
     /**
