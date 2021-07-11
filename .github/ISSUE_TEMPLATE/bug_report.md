@@ -11,8 +11,8 @@ assignees: ''
 <!--- To check a checkbox, fill in the empty space with an x --->
 <!--- Example: --->
 <!--- [x] This item is checked off --->
-[ ] I have ensured that the issue I am reporting has not already been reported
-[ ] I am able to consistently reproduce the issue
+- [ ] I have ensured that the issue I am reporting has not already been reported
+- [ ] I am able to consistently reproduce the issue
 
 
 **Steps to reproduce**
