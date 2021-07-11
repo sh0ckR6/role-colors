@@ -76,8 +76,8 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      * Example (using [queue][RestAction.queue]):
      * ```kotlin
      * override fun run(args: List<OptionMapping>, event: SlashCommandEvent) {
-     *      event.reply("Hello, World!").queue() {
-     *           it.retrieveOriginal().queue() { message ->
+     *      event.reply("Hello, World!").queue {
+     *           it.retrieveOriginal().queue { message ->
      *               replyMessage = message
      *           }
      *           // Other reply handling code...
@@ -88,7 +88,7 @@ abstract class Command(val name: String, val description: String, val bot: JDA) 
      * Example (using [queueAndSetMessage][queueAndSetMessage]):
      * ```kotlin
      * override fun run(args: List<OptionMapping>, event: SlashCommandEvent {
-     *      event.reply("Hello, World!").queueAndSetMessage() {
+     *      event.reply("Hello, World!").queueAndSetMessage {
      *           // Reply handling code
      *      }
      * }
