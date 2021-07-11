@@ -7,9 +7,13 @@ on:
   push:
     branches:
       - "**"
+    paths:
+      - "**.java"
   pull_request:
     branches:
       - "**"
+    paths:
+      - "**.java"
 
 jobs:
   build:
